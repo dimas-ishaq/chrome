@@ -26,9 +26,11 @@ jobs:
       - name: Setup Chrome Remote Desktop Session
         env:
           CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}
+          CRD_PIN: "123456"  # Anda bisa mengganti PIN ini dengan nilai lain sesuai kebutuhan
         run: |
-          # Mengaktifkan Chrome Remote Desktop dengan kode otorisasi dari CRD_AUTH_CODE
-          DISPLAY=:0 /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="GitHubActionsUbuntu" &
+          # Memulai sesi dengan kode otorisasi dan PIN
+          DISPLAY=:0 /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="GitHubActionsUbuntu" --pin="$CRD_PIN" &
+          echo "Chrome Remote Desktop session initiated with PIN."
 
       - name: Display Connection Instructions
         run: |
