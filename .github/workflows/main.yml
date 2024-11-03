@@ -28,6 +28,13 @@ jobs:
           mkdir -p /home/runner/.config/chrome-remote-desktop
           chmod 700 /home/runner/.config/chrome-remote-desktop
 
+      - name: Set Password for Runner User
+        env:
+          RUNNER_PASSWORD: ${{ secrets.RUNNER_PASSWORD }}  # Ambil password dari secret GitHub
+        run: |
+          echo "runner:$RUNNER_PASSWORD" | sudo chpasswd
+          echo "Password for user 'runner' has been set."
+
       - name: Setup Chrome Remote Desktop Session
         env:
           CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}  # Mengambil kode otorisasi dari secret
