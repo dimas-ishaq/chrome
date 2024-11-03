@@ -23,13 +23,17 @@ jobs:
           sudo apt install -y ./chrome-remote-desktop_current_amd64.deb
           sudo apt install -y xfce4 xfce4-goodies  # XFCE4 sebagai desktop environment
 
+      - name: Ensure CRD Configuration Directory
+        run: |
+          mkdir -p /home/runner/.config/chrome-remote-desktop
+          chmod 700 /home/runner/.config/chrome-remote-desktop
+
       - name: Setup Chrome Remote Desktop Session
         env:
           CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}
-          CRD_PIN: "123456"  # Anda bisa mengganti PIN ini dengan nilai lain sesuai kebutuhan
+          CRD_PIN: "123456"  # Sesuaikan PIN ini
         run: |
-          # Memulai sesi dengan kode otorisasi dan PIN
-          DISPLAY=:0 /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="GitHubActionsUbuntu" --pin="$CRD_PIN" &
+          DISPLAY=:0 /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --name="GitHubActionsUbuntu" --pin="$CRD_PIN" &
           echo "Chrome Remote Desktop session initiated with PIN."
 
       - name: Display Connection Instructions
