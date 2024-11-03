@@ -30,15 +30,14 @@ jobs:
 
       - name: Setup Chrome Remote Desktop Session
         env:
-          CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}
-          CRD_PIN: "123456"  # Sesuaikan PIN ini
+          CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}  # Mengambil kode otorisasi dari secret
         run: |
-          DISPLAY=:0 /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --name="GitHubActionsUbuntu" --pin="$CRD_PIN" &
-          echo "Chrome Remote Desktop session initiated with PIN."
+          DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname) --pin="123456" &
+          echo "Chrome Remote Desktop session initiated."
 
       - name: Display Connection Instructions
         run: |
-          echo "Chrome Remote Desktop setup complete. Access this session by signing in to https://remotedesktop.google.com/access with your Google account and selecting 'GitHubActionsUbuntu'."
+          echo "Chrome Remote Desktop setup complete. Access this session by signing in to https://remotedesktop.google.com/access with your Google account and selecting '$(hostname)'."
 
       - name: Pending Step (Sleep for 6 Hours)
         run: |
