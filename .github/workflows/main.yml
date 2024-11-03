@@ -1,0 +1,33 @@
+name: Setup Chrome Remote Desktop on Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup_crd:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Chrome Browser
+        run: |
+          Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile "chrome_installer.exe"
+          Start-Process -FilePath "chrome_installer.exe" -ArgumentList "/silent", "/install" -NoNewWindow -Wait
+
+      - name: Install Chrome Remote Desktop
+        run: |
+          Invoke-WebRequest -Uri "https://dl.google.com/tag/s/appguid%3D{8A69D345-D564-463C-AFF1-A69D9E530F96}%26iid%3D{6DC27A13-F29F-4D2E-BE0B-FE3B7DD2CDA3}%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%20Chrome%26needsadmin%3Dtrue/edgedl/chrome-remote-desktop" -OutFile "chrome_remote_desktop.msi"
+          Start-Process -FilePath "msiexec.exe" -ArgumentList "/i chrome_remote_desktop.msi /quiet" -NoNewWindow -Wait
+
+      - name: Setup Chrome Remote Desktop Session
+        env:
+          CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}
+        run: |
+          # Jalankan CRD dengan kode otorisasi untuk menambahkan session
+          Start-Process -FilePath "C:\Program Files (x86)\Google\Chrome Remote Desktop\current\chrome-remote-desktop-host.exe" -ArgumentList "--code=$env:CRD_AUTH_CODE --redirect-url=https://remotedesktop.google.com/_/oauthredirect --name=GitHubActionsWindows" -NoNewWindow -Wait
+
+      - name: Display Connection Instructions
+        run: |
+          Write-Output "CRD setup complete. Access this session by signing in to https://remotedesktop.google.com/access with your Google account and selecting 'GitHubActionsWindows'."
