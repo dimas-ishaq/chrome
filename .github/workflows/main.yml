@@ -1,7 +1,6 @@
 name: Setup Chrome Remote Desktop on Ubuntu
 
 on:
-  # Trigger saat dijalankan secara manual atau pada jadwal tertentu
   workflow_dispatch:
   schedule:
     - cron: '0 */6 * * *'  # Menjalankan setiap 6 jam
@@ -14,10 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Instal Chrome jika belum ada
-      - name: Install Chrome Browser if not installed
+      - name: Install Chrome Browser
         run: |
           if ! command -v google-chrome &> /dev/null; then
+            echo "Installing Google Chrome..."
             wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
             sudo apt update
             sudo apt install -y ./google-chrome-stable_current_amd64.deb
@@ -25,34 +24,41 @@ jobs:
             echo "Google Chrome sudah terinstal."
           fi
 
-      # Instal Chrome Remote Desktop jika belum ada
-      - name: Install Chrome Remote Desktop if not installed
+      - name: Install Chrome Remote Desktop
         run: |
           if ! command -v chrome-remote-desktop &> /dev/null; then
+            echo "Installing Chrome Remote Desktop..."
             wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
             sudo apt install -y ./chrome-remote-desktop_current_amd64.deb
-            sudo apt install -y xfce4 xfce4-goodies  # Desktop environment XFCE4
+            sudo apt install -y xfce4 xfce4-goodies  # XFCE4 sebagai desktop environment
           else
             echo "Chrome Remote Desktop sudah terinstal."
           fi
 
       - name: Ensure CRD Configuration Directory
         run: |
-          mkdir -p /home/runner/.config/chrome-remote-desktop
-          chmod 700 /home/runner/.config/chrome-remote-desktop
+          if [ ! -d "/home/runner/.config/chrome-remote-desktop" ]; then
+            echo "CRD configuration directory not found. Creating directory..."
+            mkdir -p /home/runner/.config/chrome-remote-desktop
+            chmod 700 /home/runner/.config/chrome-remote-desktop
+            echo "Directory created and permissions set."
+          else
+            echo "CRD configuration directory already exists. Skipping creation."
+          fi
 
       - name: Set Password for Runner User
         env:
-          RUNNER_PASSWORD: ${{ secrets.RUNNER_PASSWORD }}
+          RUNNER_PASSWORD: ${{ secrets.RUNNER_PASSWORD }}  # Ambil password dari secret GitHub
         run: |
+          echo "Setting password for 'runner' user..."
           echo "runner:$RUNNER_PASSWORD" | sudo chpasswd
           echo "Password for user 'runner' has been set."
 
-      # Hanya setup ulang sesi CRD tanpa instalasi ulang
       - name: Setup Chrome Remote Desktop Session
         env:
-          CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}
+          CRD_AUTH_CODE: ${{ secrets.CRD_AUTH_CODE }}  # Mengambil kode otorisasi dari secret
         run: |
+          echo "Starting Chrome Remote Desktop session..."
           DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="$CRD_AUTH_CODE" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname) --pin="123456" &
           echo "Chrome Remote Desktop session initiated."
 
@@ -60,7 +66,6 @@ jobs:
         run: |
           echo "Chrome Remote Desktop setup complete. Access this session by signing in to https://remotedesktop.google.com/access with your Google account and selecting '$(hostname)'."
 
-      # Menjaga sesi tetap aktif selama 6 jam
       - name: Pending Step (Sleep for 6 Hours)
         run: |
           echo "Pending for 6 hours to keep session active..."
