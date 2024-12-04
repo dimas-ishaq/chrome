@@ -1,13 +1,13 @@
 name: Setup Chrome Remote Desktop on Ubuntu
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 */6 * * *'  # Menjalankan setiap 6 jam
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: '0 */6 * * *'  # Menjalankan setiap 6 jam
 
-jobs:
-  setup_crd:
-    runs-on: ubuntu-latest
+# jobs:
+#   setup_crd:
+#     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
